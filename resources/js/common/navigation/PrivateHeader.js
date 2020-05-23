@@ -1,46 +1,60 @@
 // import libs
-import React from 'react'
+import React, {Component} from 'react'
 import PropTypes from 'prop-types'
-import { Link } from 'react-router-dom'
-// import components
-import { Collapse, Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from 'reactstrap'
-import NavItem from './NavItem'
+import {Link} from 'react-router-dom'
 
-// initiate Component
-export default function PrivateHeader({user, showNavigation, showDropdown, toggleDropdown, logout}) {
-  return (
-    <Collapse className="navbar-collapse" isOpen={ showNavigation }>
-      <ul className="navbar-nav mr-auto">
-        <NavItem path="/">Home</NavItem>
-        <NavItem path="/articles">Articles</NavItem>
-      </ul>
+class PrivateHeader extends Component {
+  static displayName = 'PrivateHeader'
+  static propTypes = {
+    dispatch: PropTypes.func,
+    user: PropTypes.object.isRequired,
+    showNavigation: PropTypes.bool.isRequired,
+    showDropdown: PropTypes.bool.isRequired,
+    toggleDropdown: PropTypes.func.isRequired,
+    logout: PropTypes.func.isRequired,
+  };
 
-      <ul className="navbar-nav">
-        <Dropdown isOpen={ showDropdown } toggle={ toggleDropdown }>
-          <DropdownToggle nav caret>
-            { user.name }
-          </DropdownToggle>
-          <DropdownMenu className="dropdown-menu-right">
-            <Link className='dropdown-item' to={ `/users/${ user.id }/edit` }>
-              <span className="fa fa-user-o" title="logout" aria-hidden="true"/> Profile
-            </Link>
-            <DropdownItem divider/>
-            <DropdownItem onClick={ e => logout(e) }>
-              <span className="fa fa-sign-out" title="logout" aria-hidden="true"/> Logout
-            </DropdownItem>
-          </DropdownMenu>
-        </Dropdown>
-      </ul>
-    </Collapse>
-  );
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    const {user} = this.props
+    if (user) {
+      return (
+        <div
+          className="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
+          <h5 className="my-0 mr-md-auto font-weight-normal">Bluebird Gaming Inc.</h5>
+            {
+              user.type === 0 &&
+              <nav className="my-2 my-md-0 mr-md-3">
+                <a className="p-2 text-dark" href="/">Home</a>
+                <a className="p-2 text-dark" href="/agents">Agents</a>
+                <a className="p-2 text-dark" href="/players">Players</a>
+                <a className="p-2 text-dark" href={`profile/${user.id}`}>Profile</a>
+              </nav>
+            }
+            {
+              user.type === 1 &&
+              <nav className="my-2 my-md-0 mr-md-3">
+                <a className="p-2 text-dark" href="/">Home</a>
+                <a className="p-2 text-dark" href={`/players/agent-list/${user.id}`}>Players</a>
+                <a className="p-2 text-dark" href={`profile/${user.id}`}>Profile</a>
+              </nav>
+            }
+            {
+              user.type === 2 &&
+              <nav className="my-2 my-md-0 mr-md-3">
+                <a className="p-2 text-dark" href="/">Home</a>
+                <a className="p-2 text-dark" href={`/players/view-report/${user.id}/${user.type}`}>Report</a>
+                <a className="p-2 text-dark" href={`profile/${user.id}`}>Profile</a>
+              </nav>
+            }
+          <a className="btn btn-outline-danger" onClick={e => this.props.logout(e)}>Log Out</a>
+        </div>
+      );
+    }
+  }
 }
 
-// bind properties
-PrivateHeader.displayName = 'PrivateHeader'
-PrivateHeader.propTypes = {
-  user: PropTypes.object.isRequired,
-  showNavigation: PropTypes.bool.isRequired,
-  showDropdown: PropTypes.bool.isRequired,
-  toggleDropdown: PropTypes.func.isRequired,
-  logout: PropTypes.func.isRequired,
-}
+export default PrivateHeader;

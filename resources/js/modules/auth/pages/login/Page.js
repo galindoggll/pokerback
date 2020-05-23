@@ -1,4 +1,4 @@
- // import libs
+// import libs
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import $ from 'jquery'
@@ -6,6 +6,7 @@ import _ from 'lodash'
 import { Redirect } from 'react-router-dom'
 import { login } from '../../service'
 import ReeValidate from 'ree-validate'
+import { fetchUser } from '../../../auth/service'
 
 // import components
 import Form from './components/Form'
@@ -38,6 +39,10 @@ class Page extends Component {
       },
       errors: this.validator.errors
     }
+
+    // bind component with event handlers
+    this.handleChange = this.handleChange.bind(this)
+    this.handleSubmit = this.handleSubmit.bind(this)
   }
 
   // after mounting the component add a style to the body
@@ -48,10 +53,13 @@ class Page extends Component {
   // remove body style before component leaves dom
   componentWillUnmount() {
     $('body').removeAttr('style')
+    setTimeout(function() { //Start the timer
+      this.props.dispatch(fetchUser()) //After 1 second, set render to true
+    }.bind(this), 1000)
   }
 
   // event to handle input change
-  handleChange = (name, value) => {
+  handleChange(name, value) {
     const { errors } = this.validator
 
     this.setState({ credentials: { ...this.state.credentials, [name]: value } })
@@ -65,7 +73,7 @@ class Page extends Component {
   }
 
   // event to handle form submit
-  handleSubmit = e => {
+  handleSubmit(e) {
     e.preventDefault()
     const { credentials } = this.state
     const { errors } = this.validator
